@@ -1,22 +1,28 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: GTrader API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: accounts
+    description: Trading account operations
+  - name: trades
+    description: Trade journal operations
+  - name: psychology
+    description: Psychology log operations
+  - name: analytics
+    description: Analytics and statistics
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +30,482 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [accounts]
+      summary: List all trading accounts
+      responses:
+        "200":
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+    post:
+      operationId: createAccount
+      tags: [accounts]
+      summary: Create a new trading account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAccountBody"
+      responses:
+        "201":
+          description: Created account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [accounts]
+      summary: Get a trading account by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateAccount
+      tags: [accounts]
+      summary: Update a trading account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountBody"
+      responses:
+        "200":
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+    delete:
+      operationId: deleteAccount
+      tags: [accounts]
+      summary: Delete a trading account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /accounts/{id}/stats:
+    get:
+      operationId: getAccountStats
+      tags: [accounts]
+      summary: Get statistics for a specific account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Account statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountStats"
+
+  /trades:
+    get:
+      operationId: listTrades
+      tags: [trades]
+      summary: List trades with optional filters
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: result
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: session
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: setup
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: timeframe
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: entryTrigger
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: asset
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: strategy
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: offset
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trade"
+    post:
+      operationId: createTrade
+      tags: [trades]
+      summary: Create a new trade journal entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTradeBody"
+      responses:
+        "201":
+          description: Created trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+
+  /trades/{id}:
+    get:
+      operationId: getTrade
+      tags: [trades]
+      summary: Get a trade by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateTrade
+      tags: [trades]
+      summary: Update a trade journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTradeBody"
+      responses:
+        "200":
+          description: Updated trade
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trade"
+    delete:
+      operationId: deleteTrade
+      tags: [trades]
+      summary: Delete a trade
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /psychology:
+    get:
+      operationId: listPsychologyLogs
+      tags: [psychology]
+      summary: List psychology logs
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of psychology logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PsychologyLog"
+    post:
+      operationId: createPsychologyLog
+      tags: [psychology]
+      summary: Create a psychology log entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePsychologyLogBody"
+      responses:
+        "201":
+          description: Created psychology log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PsychologyLog"
+
+  /psychology/{id}:
+    patch:
+      operationId: updatePsychologyLog
+      tags: [psychology]
+      summary: Update a psychology log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePsychologyLogBody"
+      responses:
+        "200":
+          description: Updated psychology log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PsychologyLog"
+    delete:
+      operationId: deletePsychologyLog
+      tags: [psychology]
+      summary: Delete a psychology log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /analytics/dashboard:
+    get:
+      operationId: getDashboardSummary
+      tags: [analytics]
+      summary: Get overall dashboard summary across all accounts
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /analytics/timeframes:
+    get:
+      operationId: getTimeframeAnalytics
+      tags: [analytics]
+      summary: Get win rates, RR, and profitability broken down by timeframe
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Timeframe analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimeframeStats"
+
+  /analytics/triggers:
+    get:
+      operationId: getTriggerAnalytics
+      tags: [analytics]
+      summary: Get performance by entry trigger type
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Trigger analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TriggerStats"
+
+  /analytics/sessions:
+    get:
+      operationId: getSessionAnalytics
+      tags: [analytics]
+      summary: Get performance by trading session
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Session analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SessionStats"
+
+  /analytics/setups:
+    get:
+      operationId: getSetupAnalytics
+      tags: [analytics]
+      summary: Get performance by setup type
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Setup analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SetupStats"
+
+  /analytics/equity-curve:
+    get:
+      operationId: getEquityCurve
+      tags: [analytics]
+      summary: Get equity curve data points for charting
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Equity curve data points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EquityPoint"
+
+  /analytics/recent-trades:
+    get:
+      operationId: getRecentTrades
+      tags: [analytics]
+      summary: Get most recent trades across all accounts
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Recent trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trade"
+
+  /analytics/combinations:
+    get:
+      operationId: getCombinationAnalytics
+      tags: [analytics]
+      summary: Best performing timeframe+trigger+setup combinations
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Combination analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CombinationStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +516,697 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        brokerName:
+          type: ["string", "null"]
+        accountType:
+          type: string
+          description: "forex, crypto, prop_firm, demo, cent"
+        initialBalance:
+          type: number
+        currentBalance:
+          type: number
+        growthTarget:
+          type: ["number", "null"]
+        dailyLossLimit:
+          type: ["number", "null"]
+        maxDrawdown:
+          type: ["number", "null"]
+        maxTradesPerDay:
+          type: ["integer", "null"]
+        status:
+          type: string
+          description: "active, passed, failed, blown, archived"
+        currency:
+          type: string
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - accountType
+        - initialBalance
+        - currentBalance
+        - status
+        - currency
+        - createdAt
+        - updatedAt
+
+    CreateAccountBody:
+      type: object
+      properties:
+        name:
+          type: string
+        brokerName:
+          type: ["string", "null"]
+        accountType:
+          type: string
+        initialBalance:
+          type: number
+        currentBalance:
+          type: number
+        growthTarget:
+          type: ["number", "null"]
+        dailyLossLimit:
+          type: ["number", "null"]
+        maxDrawdown:
+          type: ["number", "null"]
+        maxTradesPerDay:
+          type: ["integer", "null"]
+        status:
+          type: string
+        currency:
+          type: string
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - accountType
+        - initialBalance
+        - currentBalance
+        - status
+        - currency
+
+    UpdateAccountBody:
+      type: object
+      properties:
+        name:
+          type: ["string", "null"]
+        brokerName:
+          type: ["string", "null"]
+        accountType:
+          type: ["string", "null"]
+        currentBalance:
+          type: ["number", "null"]
+        growthTarget:
+          type: ["number", "null"]
+        dailyLossLimit:
+          type: ["number", "null"]
+        maxDrawdown:
+          type: ["number", "null"]
+        maxTradesPerDay:
+          type: ["integer", "null"]
+        status:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    AccountStats:
+      type: object
+      properties:
+        accountId:
+          type: integer
+        totalTrades:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        breakevens:
+          type: integer
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        averageWin:
+          type: number
+        averageLoss:
+          type: number
+        profitFactor:
+          type: number
+        averageRR:
+          type: number
+        maxDrawdown:
+          type: number
+        disciplineScore:
+          type: number
+        consistencyScore:
+          type: number
+        bestSession:
+          type: ["string", "null"]
+        bestSetup:
+          type: ["string", "null"]
+        bestTimeframe:
+          type: ["string", "null"]
+      required:
+        - accountId
+        - totalTrades
+        - wins
+        - losses
+        - breakevens
+        - winRate
+        - totalPnl
+        - averageWin
+        - averageLoss
+        - profitFactor
+        - averageRR
+        - maxDrawdown
+        - disciplineScore
+        - consistencyScore
+
+    Trade:
+      type: object
+      properties:
+        id:
+          type: integer
+        accountId:
+          type: integer
+        tradeDate:
+          type: string
+        asset:
+          type: string
+        direction:
+          type: string
+          description: "buy, sell"
+        strategy:
+          type: ["string", "null"]
+        setup:
+          type: ["string", "null"]
+        timeframe:
+          type: ["string", "null"]
+          description: "M1, M2, M3, M5, M10, M15, M30, H1"
+        higherTimeframeBias:
+          type: ["string", "null"]
+          description: "H1, H4, Daily"
+        entryTrigger:
+          type: ["string", "null"]
+          description: "MSS, BOS, LiquiditySweep, OrderBlock, FVG, SMTDivergence, RejectionCandle, Engulfing, BreakerBlock, MitigationBlock, SessionManipulation, CHOCH"
+        session:
+          type: ["string", "null"]
+          description: "london, new_york, asian, london_open, ny_open"
+        entryPrice:
+          type: ["number", "null"]
+        stopLoss:
+          type: ["number", "null"]
+        takeProfit:
+          type: ["number", "null"]
+        riskPercent:
+          type: ["number", "null"]
+        riskAmount:
+          type: ["number", "null"]
+        riskReward:
+          type: ["number", "null"]
+        result:
+          type: string
+          description: "win, loss, breakeven"
+        pnl:
+          type: ["number", "null"]
+        followedPlan:
+          type: ["boolean", "null"]
+        validSetup:
+          type: ["boolean", "null"]
+        impulsiveTrade:
+          type: ["boolean", "null"]
+        riskRespected:
+          type: ["boolean", "null"]
+        emotionBefore:
+          type: ["string", "null"]
+          description: "confident, fearful, anxious, overconfident, tired, revenge, focused"
+        emotionAfter:
+          type: ["string", "null"]
+          description: "calm, frustrated, disciplined, emotional, happy, impulsive"
+        disciplineScore:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        tags:
+          type: ["string", "null"]
+        screenshotUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - accountId
+        - tradeDate
+        - asset
+        - direction
+        - result
+        - createdAt
+        - updatedAt
+
+    CreateTradeBody:
+      type: object
+      properties:
+        accountId:
+          type: integer
+        tradeDate:
+          type: string
+        asset:
+          type: string
+        direction:
+          type: string
+        strategy:
+          type: ["string", "null"]
+        setup:
+          type: ["string", "null"]
+        timeframe:
+          type: ["string", "null"]
+        higherTimeframeBias:
+          type: ["string", "null"]
+        entryTrigger:
+          type: ["string", "null"]
+        session:
+          type: ["string", "null"]
+        entryPrice:
+          type: ["number", "null"]
+        stopLoss:
+          type: ["number", "null"]
+        takeProfit:
+          type: ["number", "null"]
+        riskPercent:
+          type: ["number", "null"]
+        riskAmount:
+          type: ["number", "null"]
+        riskReward:
+          type: ["number", "null"]
+        result:
+          type: string
+        pnl:
+          type: ["number", "null"]
+        followedPlan:
+          type: ["boolean", "null"]
+        validSetup:
+          type: ["boolean", "null"]
+        impulsiveTrade:
+          type: ["boolean", "null"]
+        riskRespected:
+          type: ["boolean", "null"]
+        emotionBefore:
+          type: ["string", "null"]
+        emotionAfter:
+          type: ["string", "null"]
+        disciplineScore:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        tags:
+          type: ["string", "null"]
+        screenshotUrl:
+          type: ["string", "null"]
+      required:
+        - accountId
+        - tradeDate
+        - asset
+        - direction
+        - result
+
+    UpdateTradeBody:
+      type: object
+      properties:
+        tradeDate:
+          type: ["string", "null"]
+        asset:
+          type: ["string", "null"]
+        direction:
+          type: ["string", "null"]
+        strategy:
+          type: ["string", "null"]
+        setup:
+          type: ["string", "null"]
+        timeframe:
+          type: ["string", "null"]
+        higherTimeframeBias:
+          type: ["string", "null"]
+        entryTrigger:
+          type: ["string", "null"]
+        session:
+          type: ["string", "null"]
+        entryPrice:
+          type: ["number", "null"]
+        stopLoss:
+          type: ["number", "null"]
+        takeProfit:
+          type: ["number", "null"]
+        riskPercent:
+          type: ["number", "null"]
+        riskAmount:
+          type: ["number", "null"]
+        riskReward:
+          type: ["number", "null"]
+        result:
+          type: ["string", "null"]
+        pnl:
+          type: ["number", "null"]
+        followedPlan:
+          type: ["boolean", "null"]
+        validSetup:
+          type: ["boolean", "null"]
+        impulsiveTrade:
+          type: ["boolean", "null"]
+        riskRespected:
+          type: ["boolean", "null"]
+        emotionBefore:
+          type: ["string", "null"]
+        emotionAfter:
+          type: ["string", "null"]
+        disciplineScore:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        tags:
+          type: ["string", "null"]
+        screenshotUrl:
+          type: ["string", "null"]
+
+    PsychologyLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        accountId:
+          type: ["integer", "null"]
+        logDate:
+          type: string
+        emotionState:
+          type: string
+        energyLevel:
+          type: ["integer", "null"]
+        stressLevel:
+          type: ["integer", "null"]
+        focusLevel:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        tradedToday:
+          type: ["boolean", "null"]
+        followedRules:
+          type: ["boolean", "null"]
+        overallScore:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - logDate
+        - emotionState
+        - createdAt
+
+    CreatePsychologyLogBody:
+      type: object
+      properties:
+        accountId:
+          type: ["integer", "null"]
+        logDate:
+          type: string
+        emotionState:
+          type: string
+        energyLevel:
+          type: ["integer", "null"]
+        stressLevel:
+          type: ["integer", "null"]
+        focusLevel:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        tradedToday:
+          type: ["boolean", "null"]
+        followedRules:
+          type: ["boolean", "null"]
+        overallScore:
+          type: ["integer", "null"]
+      required:
+        - logDate
+        - emotionState
+
+    UpdatePsychologyLogBody:
+      type: object
+      properties:
+        emotionState:
+          type: ["string", "null"]
+        energyLevel:
+          type: ["integer", "null"]
+        stressLevel:
+          type: ["integer", "null"]
+        focusLevel:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        tradedToday:
+          type: ["boolean", "null"]
+        followedRules:
+          type: ["boolean", "null"]
+        overallScore:
+          type: ["integer", "null"]
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalAccounts:
+          type: integer
+        totalTrades:
+          type: integer
+        overallWinRate:
+          type: number
+        totalPnl:
+          type: number
+        totalPnlToday:
+          type: number
+        totalPnlThisWeek:
+          type: number
+        totalPnlThisMonth:
+          type: number
+        bestAccount:
+          type: ["string", "null"]
+        worstAccount:
+          type: ["string", "null"]
+        averageDisciplineScore:
+          type: number
+        totalWins:
+          type: integer
+        totalLosses:
+          type: integer
+        bestSetup:
+          type: ["string", "null"]
+        bestSession:
+          type: ["string", "null"]
+        bestTimeframe:
+          type: ["string", "null"]
+        bestTrigger:
+          type: ["string", "null"]
+        activeAccounts:
+          type: integer
+        accountBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/AccountBreakdownItem"
+      required:
+        - totalAccounts
+        - totalTrades
+        - overallWinRate
+        - totalPnl
+        - totalPnlToday
+        - totalPnlThisWeek
+        - totalPnlThisMonth
+        - averageDisciplineScore
+        - totalWins
+        - totalLosses
+        - activeAccounts
+        - accountBreakdown
+
+    AccountBreakdownItem:
+      type: object
+      properties:
+        accountId:
+          type: integer
+        accountName:
+          type: string
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        totalTrades:
+          type: integer
+        status:
+          type: string
+      required:
+        - accountId
+        - accountName
+        - winRate
+        - totalPnl
+        - totalTrades
+        - status
+
+    TimeframeStats:
+      type: object
+      properties:
+        timeframe:
+          type: string
+        totalTrades:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        averageRR:
+          type: number
+        averageWin:
+          type: number
+        averageLoss:
+          type: number
+        profitFactor:
+          type: number
+      required:
+        - timeframe
+        - totalTrades
+        - wins
+        - losses
+        - winRate
+        - totalPnl
+        - averageRR
+        - averageWin
+        - averageLoss
+        - profitFactor
+
+    TriggerStats:
+      type: object
+      properties:
+        entryTrigger:
+          type: string
+        totalTrades:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        averageRR:
+          type: number
+        profitFactor:
+          type: number
+      required:
+        - entryTrigger
+        - totalTrades
+        - wins
+        - losses
+        - winRate
+        - totalPnl
+        - averageRR
+        - profitFactor
+
+    SessionStats:
+      type: object
+      properties:
+        session:
+          type: string
+        totalTrades:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        averageRR:
+          type: number
+        profitFactor:
+          type: number
+      required:
+        - session
+        - totalTrades
+        - wins
+        - losses
+        - winRate
+        - totalPnl
+        - averageRR
+        - profitFactor
+
+    SetupStats:
+      type: object
+      properties:
+        setup:
+          type: string
+        totalTrades:
+          type: integer
+        wins:
+          type: integer
+        losses:
+          type: integer
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        averageRR:
+          type: number
+        profitFactor:
+          type: number
+      required:
+        - setup
+        - totalTrades
+        - wins
+        - losses
+        - winRate
+        - totalPnl
+        - averageRR
+        - profitFactor
+
+    EquityPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        balance:
+          type: number
+        pnl:
+          type: number
+        tradeId:
+          type: ["integer", "null"]
+      required:
+        - date
+        - balance
+        - pnl
+
+    CombinationStats:
+      type: object
+      properties:
+        timeframe:
+          type: ["string", "null"]
+        entryTrigger:
+          type: ["string", "null"]
+        setup:
+          type: ["string", "null"]
+        totalTrades:
+          type: integer
+        winRate:
+          type: number
+        totalPnl:
+          type: number
+        averageRR:
+          type: number
+        profitFactor:
+          type: number
+      required:
+        - totalTrades
+        - winRate
+        - totalPnl
+        - averageRR
+        - profitFactor

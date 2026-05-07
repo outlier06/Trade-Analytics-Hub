@@ -1,0 +1,456 @@
+Create a complete professional trading management ecosystem called GTrader — designed as a:
+
+Responsive Web App
+Mobile App (iOS + Android)
+Desktop App
+Advanced Spreadsheet System (Excel + Google Sheets)
+
+The platform must be built with a professional trader mindset, focused on:
+
+Consistency
+Risk management
+Discipline
+Psychology
+Performance analytics
+Capital preservation
+
+The system should feel like a premium fintech/trading platform used by funded traders and prop firm professionals.
+
+🎯 MAIN OBJECTIVE
+
+Build a platform that helps traders:
+
+Stop trading blindly
+Fully control and manage capital
+Track real performance metrics
+Identify profitable patterns
+Improve discipline and psychology
+Develop professional trading habits
+Scale accounts consistently
+👤 TARGET USER
+
+The ideal user is:
+
+Beginner to intermediate trader
+Uses SMC and ICT concepts
+Trades:
+NASDAQ
+S&P 500
+EUR/USD
+Crypto
+Focuses mainly on the New York session
+Uses:
+Small accounts
+Cent accounts
+Prop firm accounts
+🔐 AUTHENTICATION SYSTEM (IMPORTANT)
+
+Create a complete authentication and account management system with:
+
+Features:
+User registration
+Login/logout
+Password encryption
+Forgot password recovery
+Session management
+JWT or secure authentication tokens
+Multi-device login support
+Role system (user/admin)
+Database Requirements:
+
+Create a proper backend database structure for:
+
+Users
+Trading accounts
+Trades
+Statistics
+Psychology logs
+Uploaded screenshots
+Settings
+
+Suggested stack:
+
+PostgreSQL or MongoDB
+Firebase Auth or Supabase Auth
+Node.js backend or modern scalable backend architecture
+💰 ACCOUNT MANAGEMENT SYSTEM (VERY IMPORTANT)
+
+The platform must support multiple independent trading accounts.
+
+Examples:
+
+Forex 1
+Forex 2
+Crypto 1
+Crypto 2
+Prop Firm 1
+Prop Firm 2
+Critical Requirement:
+
+Each account must be COMPLETELY SEPARATED.
+
+For example:
+
+When the user clicks:
+
+Accounts → Forex 1
+
+The system must display ONLY:
+
+Balance
+Statistics
+Trades
+Risk metrics
+Psychology data
+Growth curve
+History
+Dashboard
+Performance analytics
+related specifically to Forex 1.
+
+The same logic applies to every account individually.
+
+⚙️ ACCOUNT FEATURES
+
+For each account include:
+
+Account name
+Broker name
+Account type
+Initial balance
+Current balance
+Editable balance
+Deposit/withdrawal history
+Growth target (%)
+Daily profit/loss
+Account status:
+Active
+Passed
+Failed
+Blown
+Equity curve
+Account creation date
+➕ ACCOUNT MANAGEMENT ACTIONS
+
+The user must be able to:
+
+Create new accounts
+Edit accounts
+Delete accounts
+Archive accounts
+Change balances manually
+Duplicate account templates
+Switch between accounts instantly
+📊 TRADING JOURNAL (CORE FEATURE)
+
+For every trade, allow the user to register:
+
+Date and time
+Asset/pair
+Buy or sell
+Strategy used (SMC, ICT, Scalping, etc.)
+Setup type:
+Liquidity sweep
+Order Block
+FVG
+Breaker
+MSS
+BOS
+Entry price
+Stop Loss
+Take Profit
+Risk percentage
+Risk amount
+RR (Risk Reward)
+Result:
+Win
+Loss
+Breakeven
+Profit or loss amount
+Notes
+Screenshot upload
+Trade tags
+📈 SMART DASHBOARD
+
+Create an advanced analytics dashboard showing:
+
+Gross balance
+Net balance
+Daily/weekly/monthly profit
+Win rate
+Average win vs average loss
+Profit factor
+Maximum drawdown
+Equity curve chart
+Total number of trades
+Risk exposure
+Best strategy
+Best trading session
+Best account
+Consistency score
+
+Include:
+
+Interactive charts
+Filters
+Calendar analytics
+Real-time updates
+🧠 TRADING PSYCHOLOGY MODULE
+
+For each trade, allow emotional tracking:
+
+Before trade:
+Confident
+Fearful
+Anxious
+Overconfident
+Tired
+Revenge trading
+Focused
+After trade:
+Calm
+Frustrated
+Disciplined
+Emotional
+Happy
+Impulsive
+
+The system must automatically generate:
+
+Emotional behavior reports
+Psychological patterns
+Correlation between emotions and losses/wins
+Warnings about emotional trading habits
+⏰ SESSION ANALYSIS
+
+Track:
+
+Trading hours
+Best trading time
+Worst trading time
+Session profitability
+New York session statistics
+London session statistics
+Kill zones
+
+Generate:
+
+Heatmaps
+Time-based profitability charts
+🎯 DISCIPLINE TRACKER
+
+For every trade include:
+
+Did the trader follow the plan?
+Was the setup valid?
+Was the trade impulsive?
+Was the entry inside strategy rules?
+Was risk respected?
+
+Generate:
+
+Discipline score (%)
+Weekly discipline report
+Behavioral analytics
+Rule violation alerts
+⚠️ RISK MANAGEMENT SYSTEM
+
+The system must include:
+
+Risk per trade
+Daily risk limit
+Weekly risk limit
+Maximum drawdown protection
+Maximum trades per day
+Auto alerts when risk is exceeded
+Planned risk vs actual risk comparison
+Position size calculator
+
+Optional:
+
+Prop firm rule tracking
+🔍 SETUP ANALYTICS
+
+Automatically identify:
+
+Most profitable setups
+Worst setups
+Best RR setups
+Most consistent strategy
+Setup ranking system
+
+Include:
+
+Charts
+Performance tables
+Strategy comparison
+🏆 GAMIFICATION SYSTEM (OPTIONAL BUT IMPORTANT)
+
+Add:
+
+Trader score
+Experience points (XP)
+Progression levels:
+Beginner
+Developing
+Consistent
+Advanced
+Professional
+Achievement badges
+Daily streak tracking
+
+Automatic feedback examples:
+
+“You are overtrading.”
+“Your psychology decreases after 3 consecutive losses.”
+“Your best trades happen during the NY session.”
+“You are trading outside your strategy.”
+🎨 UI/UX DESIGN
+
+Style:
+
+Modern
+Premium fintech
+Minimalist
+Professional trading dashboard
+
+Requirements:
+
+Dark mode
+Responsive design
+Clean layout
+Smooth animations
+Mobile-first
+Fast performance
+
+Use:
+
+TradingView-style charts
+Professional widgets
+Clear typography
+Advanced filtering system
+
+Suggested colors:
+
+Black
+Dark gray
+Blue accents
+Green/red trading indicators
+📱 PAGES / MODULES
+
+Create these pages:
+
+Login / Register
+Dashboard
+Accounts
+Account Details
+Trading Journal
+Analytics
+Psychology
+Risk Management
+Discipline Center
+Settings
+Profile
+Notifications
+🛠️ TECH STACK (SUGGESTED)
+
+Frontend:
+
+Next.js
+React
+Tailwind CSS
+Framer Motion
+
+Backend:
+
+Node.js
+Express
+Prisma ORM
+
+Database:
+
+PostgreSQL
+
+Authentication:
+
+Supabase Auth or Firebase Auth
+
+Charts:
+
+TradingView
+Recharts
+Chart.js
+
+Storage:
+
+Cloudinary or Supabase Storage
+📊 SPREADSHEET VERSION
+
+Also create an advanced spreadsheet version with tabs:
+
+Trade Journal
+Dashboard
+Account Management
+Statistics
+Psychology
+Risk Management
+Session Analysis
+
+Include:
+
+Automated formulas
+Dynamic charts
+Conditional formatting
+Risk alerts
+Performance tracking
+🚀 DIFFERENTIAL
+
+The platform must:
+
+Think like a professional trader
+Focus on long-term consistency
+Work well even with small accounts
+Help traders identify mistakes
+Improve discipline and execution
+Reduce emotional trading
+📦 EXPECTED OUTPUT
+
+Generate:
+
+Complete system architecture
+Database schema
+UI/UX wireframes
+Feature logic
+User flow
+Responsive layouts
+API structure
+Spreadsheet structure
+Suggested folder structure
+If possible:
+Frontend code
+Backend code
+Database models
+Spreadsheet formulas
+💡 INSPIRATION
+
+Inspired by platforms like:
+
+KTrader
+
+But significantly improved with focus on:
+
+Discipline
+Risk management
+Trading psychology
+Consistency
+Professional growth
+⚡ FINAL GOAL
+
+The final product must make traders:
+
+Think professionally
+Trade with clarity
+Make data-driven decisions
+Improve discipline
+Build consistency
+Evolve using real statistics and analytics

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@workspace/replit-auth-web";
 import {
   LayoutDashboard, Wallet, BookOpen, BarChart3, Brain,
-  ShieldAlert, Menu, X, LogOut, ChevronRight, Bell,
+  ShieldAlert, Menu, X, LogOut, ChevronRight, Bell, UserCog,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,12 @@ function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/perfil" className="flex items-center cursor-pointer">
+            <UserCog className="h-4 w-4 mr-2" /> Definições de Perfil
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => logout()} className="text-destructive" data-testid="button-logout">
           <LogOut className="h-4 w-4 mr-2" /> Sair

@@ -14,6 +14,7 @@ import TradeDetail from "@/pages/TradeDetail";
 import Analytics from "@/pages/Analytics";
 import Psychology from "@/pages/Psychology";
 import Risk from "@/pages/Risk";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 import { OutlierLogoMark } from "@/components/OutlierLogo";
 
@@ -56,6 +57,7 @@ function Router() {
         <Route path="/analytics" component={Analytics} />
         <Route path="/psicologia" component={Psychology} />
         <Route path="/risco" component={Risk} />
+        <Route path="/perfil" component={Profile} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -7,6 +7,7 @@ import {
   getSessionId,
   hashPassword,
   verifyPassword,
+  updateSession,
   SESSION_COOKIE,
   SESSION_TTL,
   type SessionData,
@@ -108,6 +109,84 @@ router.get("/logout", async (req: Request, res: Response) => {
   const sid = getSessionId(req);
   await clearSession(res, sid);
   res.redirect("/");
+});
+
+// Update profile (name + email)
+router.put("/auth/profile", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Não autenticado." });
+    return;
+  }
+  const { firstName, lastName, email } = req.body ?? {};
+  if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
+    res.status(400).json({ error: "O primeiro nome é obrigatório." });
+    return;
+  }
+  if (email && (typeof email !== "string" || !email.includes("@"))) {
+    res.status(400).json({ error: "Email inválido." });
+    return;
+  }
+  const userId = req.user.id;
+  if (email && email.toLowerCase() !== req.user.email?.toLowerCase()) {
+    const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
+    if (existing && existing.id !== userId) {
+      res.status(409).json({ error: "Este email já está em uso." });
+      return;
+    }
+  }
+  await db.update(usersTable).set({
+    firstName: firstName.trim(),
+    lastName: lastName ? (lastName as string).trim() || null : null,
+    ...(email ? { email: email.toLowerCase() } : {}),
+  }).where(eq(usersTable.id, userId));
+  const sid = getSessionId(req);
+  if (sid) {
+    const updated = {
+      ...req.user,
+      firstName: firstName.trim(),
+      lastName: lastName ? (lastName as string).trim() || null : null,
+      ...(email ? { email: email.toLowerCase() } : {}),
+    };
+    await updateSession(sid, { user: updated });
+  }
+  res.json({
+    user: {
+      ...req.user,
+      firstName: firstName.trim(),
+      lastName: lastName ? (lastName as string).trim() || null : null,
+      ...(email ? { email: email.toLowerCase() } : {}),
+    },
+  });
+});
+
+// Change password
+router.put("/auth/password", async (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Não autenticado." });
+    return;
+  }
+  const { currentPassword, newPassword } = req.body ?? {};
+  if (!currentPassword || !newPassword) {
+    res.status(400).json({ error: "Password actual e nova password são obrigatórias." });
+    return;
+  }
+  if (typeof newPassword !== "string" || newPassword.length < 6) {
+    res.status(400).json({ error: "A nova password deve ter pelo menos 6 caracteres." });
+    return;
+  }
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.user.id));
+  if (!user?.passwordHash) {
+    res.status(400).json({ error: "Utilizador não encontrado." });
+    return;
+  }
+  const valid = await verifyPassword(currentPassword as string, user.passwordHash);
+  if (!valid) {
+    res.status(401).json({ error: "A password actual está incorrecta." });
+    return;
+  }
+  const newHash = await hashPassword(newPassword as string);
+  await db.update(usersTable).set({ passwordHash: newHash }).where(eq(usersTable.id, req.user.id));
+  res.json({ success: true });
 });
 
 export default router;

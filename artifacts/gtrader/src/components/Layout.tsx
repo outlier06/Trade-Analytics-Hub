@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { OutlierLogoMark } from "@/components/OutlierLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, color: "text-violet-400" },
@@ -88,9 +89,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )} style={{ background: "hsl(var(--sidebar))" }}>
         <div className="flex items-center justify-between px-4 py-4 border-b border-sidebar-border">
           <SidebarLogo />
-          <button className="lg:hidden p-1 text-sidebar-foreground/50 hover:text-sidebar-foreground" onClick={() => setSidebarOpen(false)}>
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <button className="lg:hidden p-1 text-sidebar-foreground/50 hover:text-sidebar-foreground" onClick={() => setSidebarOpen(false)}>
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
@@ -120,7 +124,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-background/80 backdrop-blur-md lg:hidden">
           <SidebarLogo />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
               <Bell className="h-4 w-4" />
             </Button>

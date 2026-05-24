@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import type { AuthUser } from "@workspace/api-client-react";
 
 export type { AuthUser };
@@ -12,14 +12,16 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
-export function useAuth(): AuthState {
+const AuthContext = createContext<AuthState | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/auth/user", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then(res => res.ok ? res.json() : Promise.reject())
       .then((data: { user: AuthUser | null }) => {
         if (!cancelled) { setUser(data.user ?? null); setIsLoading(false); }
       })
@@ -57,5 +59,15 @@ export function useAuth(): AuthState {
     setUser(null);
   }, []);
 
-  return { user, isLoading, isAuthenticated: !!user, login, register, logout };
+  return (
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthState {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

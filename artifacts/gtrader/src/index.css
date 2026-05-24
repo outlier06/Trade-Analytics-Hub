@@ -53,38 +53,41 @@
    Deep navy / indigo / violet palette (matches logo icon)
    ============================================================ */
 :root {
-  --background: 220 20% 97%;
-  --foreground: 222 30% 8%;
-  --border: 220 14% 88%;
+  /* Light mode — warm neutral, easy on the eyes */
+  --background: 220 18% 96%;
+  --foreground: 222 22% 15%;
+  --border: 220 12% 85%;
   --card: 0 0% 100%;
-  --card-foreground: 222 30% 8%;
-  --card-border: 220 14% 90%;
+  --card-foreground: 222 22% 15%;
+  --card-border: 220 12% 87%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 30% 8%;
-  --popover-border: 220 14% 90%;
-  --primary: 249 100% 65%;
+  --popover-foreground: 222 22% 15%;
+  --popover-border: 220 12% 87%;
+  /* Muted purple — not electric, comfortable on white */
+  --primary: 249 55% 52%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 220 14% 93%;
-  --secondary-foreground: 222 30% 8%;
-  --muted: 220 14% 93%;
-  --muted-foreground: 220 10% 46%;
-  --accent: 220 14% 90%;
-  --accent-foreground: 222 30% 8%;
-  --destructive: 0 84% 60%;
+  --secondary: 220 12% 91%;
+  --secondary-foreground: 222 22% 15%;
+  --muted: 220 12% 91%;
+  --muted-foreground: 220 8% 48%;
+  --accent: 220 12% 88%;
+  --accent-foreground: 222 22% 15%;
+  --destructive: 0 72% 54%;
   --destructive-foreground: 0 0% 100%;
-  --input: 220 14% 88%;
-  --ring: 249 100% 65%;
-  --gold: 43 96% 56%;
-  --gold-foreground: 43 96% 20%;
-  --chart-1: 249 100% 65%;
-  --chart-2: 142 71% 45%;
-  --chart-3: 43 96% 56%;
-  --chart-4: 270 65% 60%;
-  --chart-5: 0 84% 60%;
+  --input: 220 12% 85%;
+  --ring: 249 55% 52%;
+  --gold: 43 85% 50%;
+  --gold-foreground: 43 85% 18%;
+  --chart-1: 249 55% 52%;
+  --chart-2: 142 60% 40%;
+  --chart-3: 43 85% 50%;
+  --chart-4: 270 55% 52%;
+  --chart-5: 0 72% 54%;
+  /* Sidebar stays deep navy — always dark regardless of mode */
   --sidebar: 230 35% 9%;
   --sidebar-foreground: 220 15% 78%;
   --sidebar-border: 230 30% 14%;
-  --sidebar-primary: 249 100% 65%;
+  --sidebar-primary: 249 65% 62%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 230 30% 14%;
   --sidebar-accent-foreground: 220 20% 92%;

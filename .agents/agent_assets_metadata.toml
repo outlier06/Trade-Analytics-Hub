@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "9tBRpf27uxmnmcXhanN_-"
+uri = "file://artifacts/outlier-mobile/assets/images/icon.png"
+type = "image"
+title = "outlier_mobile_icon"

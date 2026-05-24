@@ -1,8 +1,58 @@
 import { useGetDashboardSummary, useGetRecentTrades } from "@workspace/api-client-react";
-import { formatCurrency, formatPercent, formatDateTime, pnlColor, resultLabel, resultBadgeClass, cn, directionLabel } from "@/lib/utils";
+import { formatCurrency, formatPercent, formatDateTime, pnlColor, cn, directionLabel } from "@/lib/utils";
 import StatCard from "@/components/StatCard";
-import { BarChart3, Wallet, Activity, TrendingUp, TrendingDown, Zap, Star, Calendar } from "lucide-react";
+import { BarChart3, Wallet, Activity, TrendingUp, TrendingDown, Zap, Star, Calendar, StickyNote } from "lucide-react";
 import { Link } from "wouter";
+import { useState, useEffect, useRef } from "react";
+
+function QuickNotes() {
+  const today = new Date().toISOString().slice(0, 10);
+  const storageKey = `outlier_notes_${today}`;
+
+  const [text, setText] = useState(() => {
+    try { return localStorage.getItem(storageKey) ?? ""; } catch { return ""; }
+  });
+  const [saved, setSaved] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleChange(val: string) {
+    setText(val);
+    setSaved(false);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      try { localStorage.setItem(storageKey, val); } catch {}
+      setSaved(true);
+      timerRef.current = setTimeout(() => setSaved(false), 2000);
+    }, 600);
+  }
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  const dateLabel = new Date().toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long" });
+
+  return (
+    <div className="bg-card border border-card-border rounded-xl p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md brand-bg flex items-center justify-center">
+            <StickyNote className="h-3.5 w-3.5 text-white" />
+          </div>
+          Notas do Dia
+        </h2>
+        <div className="flex items-center gap-2">
+          {saved && <span className="text-[10px] text-green-500 font-semibold">Guardado</span>}
+          <span className="text-[10px] text-muted-foreground capitalize">{dateLabel}</span>
+        </div>
+      </div>
+      <textarea
+        value={text}
+        onChange={e => handleChange(e.target.value)}
+        placeholder="Plano do dia, observações de mercado, regras para cumprir..."
+        className="w-full h-24 bg-muted/40 border border-border/50 rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 resize-none transition-all"
+      />
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { data: summary, isLoading } = useGetDashboardSummary();
@@ -150,7 +200,7 @@ export default function Dashboard() {
                 <Link key={t.id} href={`/diario/${t.id}`}>
                   <div className="flex items-center justify-between p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer border border-transparent hover:border-border/50" data-testid={`trade-row-${t.id}`}>
                     <div className="flex items-center gap-2.5">
-                      <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", t.result === "win" ? "bg-green-500 win-badge" : t.result === "loss" ? "bg-red-500 loss-badge" : "bg-muted-foreground")} />
+                      <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", t.result === "win" ? "bg-green-500" : t.result === "loss" ? "bg-red-500" : "bg-muted-foreground")} />
                       <div>
                         <p className="text-sm font-semibold text-foreground">
                           {t.asset}
@@ -169,6 +219,9 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Quick Notes */}
+      <QuickNotes />
 
       {/* Top performers */}
       {s && (s.bestTrigger || s.bestTimeframe) && (

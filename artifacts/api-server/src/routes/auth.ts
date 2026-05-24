@@ -96,7 +96,8 @@ router.post("/auth/login", async (req: Request, res: Response) => {
 
   const sid = await createSession(sessionData);
   setSessionCookie(res, sid);
-  res.json({ user: sessionData.user });
+  const isMobile = req.query["mobile"] === "1";
+  res.json({ user: sessionData.user, ...(isMobile ? { sid } : {}) });
 });
 
 router.post("/auth/logout", async (req: Request, res: Response) => {
@@ -117,7 +118,7 @@ router.put("/auth/profile", async (req: Request, res: Response) => {
     res.status(401).json({ error: "Não autenticado." });
     return;
   }
-  const { firstName, lastName, email } = req.body ?? {};
+  const { firstName, lastName, email, profileImageUrl } = req.body ?? {};
   if (!firstName || typeof firstName !== "string" || !firstName.trim()) {
     res.status(400).json({ error: "O primeiro nome é obrigatório." });
     return;
@@ -138,25 +139,18 @@ router.put("/auth/profile", async (req: Request, res: Response) => {
     firstName: firstName.trim(),
     lastName: lastName ? (lastName as string).trim() || null : null,
     ...(email ? { email: email.toLowerCase() } : {}),
+    ...(profileImageUrl !== undefined ? { profileImageUrl: profileImageUrl || null } : {}),
   }).where(eq(usersTable.id, userId));
+  const updatedUser = {
+    ...req.user,
+    firstName: firstName.trim(),
+    lastName: lastName ? (lastName as string).trim() || null : null,
+    ...(email ? { email: email.toLowerCase() } : {}),
+    ...(profileImageUrl !== undefined ? { profileImageUrl: profileImageUrl || null } : {}),
+  };
   const sid = getSessionId(req);
-  if (sid) {
-    const updated = {
-      ...req.user,
-      firstName: firstName.trim(),
-      lastName: lastName ? (lastName as string).trim() || null : null,
-      ...(email ? { email: email.toLowerCase() } : {}),
-    };
-    await updateSession(sid, { user: updated });
-  }
-  res.json({
-    user: {
-      ...req.user,
-      firstName: firstName.trim(),
-      lastName: lastName ? (lastName as string).trim() || null : null,
-      ...(email ? { email: email.toLowerCase() } : {}),
-    },
-  });
+  if (sid) await updateSession(sid, { user: updatedUser });
+  res.json({ user: updatedUser });
 });
 
 // Change password

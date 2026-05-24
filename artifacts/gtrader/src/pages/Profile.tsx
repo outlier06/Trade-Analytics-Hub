@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@workspace/replit-auth-web";
-import { User, Lock, Save, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { User, Lock, Save, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowLeft, Camera, X } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,6 +32,7 @@ const inputCls = "w-full bg-muted/50 border border-border rounded-lg px-3.5 py-2
 export default function Profile() {
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Profile form state
   const [firstName, setFirstName] = useState(user?.firstName ?? "");
@@ -39,6 +40,11 @@ export default function Profile() {
   const [email, setEmail] = useState(user?.email ?? "");
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  // Profile picture state
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.profileImageUrl ?? null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   // Password form state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -50,9 +56,91 @@ export default function Profile() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
+  const displayUrl = avatarPreview ?? avatarUrl;
   const initials = firstName
     ? `${firstName[0]}${lastName?.[0] ?? ""}`.toUpperCase()
     : (user?.email?.[0] ?? "U").toUpperCase();
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Preview immediately
+    const reader = new FileReader();
+    reader.onload = ev => setAvatarPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+
+    setAvatarUploading(true);
+    try {
+      // 1. Get a presigned upload URL
+      const presignRes = await fetch("/api/storage/uploads/request-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: file.name, contentType: file.type }),
+      });
+      if (!presignRes.ok) {
+        const data = await presignRes.json() as { error?: string };
+        throw new Error(data.error ?? "Erro ao preparar upload.");
+      }
+      const { uploadURL, objectPath } = await presignRes.json() as { uploadURL: string; objectPath: string };
+
+      // 2. Upload the file directly to GCS via signed URL
+      const uploadRes = await fetch(uploadURL, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error("Erro ao enviar ficheiro.");
+
+      // 3. Build public URL: objectPath = "/objects/..." → served via /api/storage/objects/...
+      const pathSuffix = objectPath.replace(/^\/objects/, "");
+      const publicUrl = `/api/storage/objects${pathSuffix}`;
+
+      // 4. Save to profile
+      const profileRes = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ firstName: firstName.trim(), lastName: lastName.trim() || null, email: email.trim(), profileImageUrl: publicUrl }),
+      });
+      const profileData = await profileRes.json() as { error?: string };
+      if (!profileRes.ok || profileData.error) throw new Error(profileData.error ?? "Erro ao guardar foto.");
+
+      setAvatarUrl(publicUrl);
+      setAvatarPreview(null);
+      await refreshUser();
+      toast({ title: "Foto actualizada", description: "A sua foto de perfil foi guardada." });
+    } catch (err: unknown) {
+      setAvatarPreview(null);
+      toast({ title: "Erro no upload", description: err instanceof Error ? err.message : "Tente novamente.", variant: "destructive" });
+    } finally {
+      setAvatarUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    setAvatarUploading(true);
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ firstName: firstName.trim(), lastName: lastName.trim() || null, email: email.trim(), profileImageUrl: "" }),
+      });
+      const data = await res.json() as { error?: string };
+      if (!res.ok || data.error) throw new Error(data.error ?? "Erro ao remover foto.");
+      setAvatarUrl(null);
+      setAvatarPreview(null);
+      await refreshUser();
+      toast({ title: "Foto removida" });
+    } catch (err: unknown) {
+      toast({ title: "Erro", description: err instanceof Error ? err.message : "Tente novamente.", variant: "destructive" });
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
@@ -130,15 +218,66 @@ export default function Profile() {
 
       {/* Avatar */}
       <div className="flex items-center gap-5 p-5 bg-card border border-card-border rounded-2xl">
-        <div className="w-16 h-16 rounded-2xl brand-bg flex items-center justify-center flex-shrink-0">
-          <span className="text-xl font-black text-white">{initials}</span>
+        {/* Clickable avatar */}
+        <div className="relative group flex-shrink-0">
+          {displayUrl ? (
+            <img
+              src={displayUrl}
+              alt="Avatar"
+              className="w-16 h-16 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl brand-bg flex items-center justify-center">
+              <span className="text-xl font-black text-white">{initials}</span>
+            </div>
+          )}
+          {/* Upload overlay */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={avatarUploading}
+            className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:cursor-not-allowed"
+          >
+            {avatarUploading
+              ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              : <Camera className="h-5 w-5 text-white" />
+            }
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <p className="text-base font-bold text-foreground">
             {firstName || lastName ? `${firstName} ${lastName}`.trim() : "Trader"}
           </p>
           <p className="text-sm text-muted-foreground">{email}</p>
           <p className="text-xs text-muted-foreground/60 mt-1">Membro OUTLIER</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={avatarUploading}
+            className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-semibold transition-colors disabled:opacity-50"
+          >
+            <Camera className="h-3.5 w-3.5" />
+            {avatarUploading ? "A enviar..." : "Alterar foto"}
+          </button>
+          {displayUrl && (
+            <button
+              type="button"
+              onClick={handleRemoveAvatar}
+              disabled={avatarUploading}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 font-semibold transition-colors disabled:opacity-50"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       </div>
 

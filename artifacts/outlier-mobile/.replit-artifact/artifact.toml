@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/outlier-mobile/"
+title = "OUTLIER Mobile"
+version = "1.0.0"
+id = "artifacts/outlier-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/outlier-mobile/" ]
+localPort = 20423
+
+[services.development]
+run = "pnpm --filter @workspace/outlier-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/outlier-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/outlier-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "20423"
+BASE_PATH = "/outlier-mobile/"

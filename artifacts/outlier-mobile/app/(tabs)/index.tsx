@@ -1,8 +1,10 @@
 import { Feather } from "@expo/vector-icons";
 import { useGetDashboardSummary, useGetRecentTrades } from "@workspace/api-client-react";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -54,6 +56,7 @@ function StatTile({ label, value, sub, accent }: StatTileProps) {
 export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { user } = useAuth();
   const { data: summary, isLoading } = useGetDashboardSummary();
   const { data: trades } = useGetRecentTrades({ limit: 5 });
@@ -89,6 +92,24 @@ export default function DashboardScreen() {
             {(user?.firstName?.[0] ?? "T").toUpperCase()}
           </Text>
         </View>
+      </View>
+
+      {/* Quick actions */}
+      <View style={styles.quickActions}>
+        <Pressable
+          onPress={() => router.push("/new-trade")}
+          style={[styles.quickActionBtn, { backgroundColor: colors.primary }]}
+        >
+          <Feather name="plus" size={16} color="#fff" />
+          <Text style={styles.quickActionTextPrimary}>Nova Operação</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.push("/accounts")}
+          style={[styles.quickActionBtn, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]}
+        >
+          <Feather name="credit-card" size={16} color={colors.foreground} />
+          <Text style={[styles.quickActionText, { color: colors.foreground }]}>Contas</Text>
+        </Pressable>
       </View>
 
       {/* Hero PnL card */}
@@ -195,6 +216,10 @@ const styles = StyleSheet.create({
   greeting: { fontFamily: "Inter_400Regular", fontSize: 13 },
   name: { fontFamily: "Inter_700Bold", fontSize: 22, letterSpacing: -0.5, marginTop: 2 },
   avatarBadge: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  quickActions: { flexDirection: "row", gap: 10, marginBottom: 20 },
+  quickActionBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 44, borderRadius: 12 },
+  quickActionTextPrimary: { fontFamily: "Inter_700Bold", fontSize: 13, color: "#fff" },
+  quickActionText: { fontFamily: "Inter_700Bold", fontSize: 13 },
   avatarText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#fff" },
   heroCard: {
     borderWidth: 1,

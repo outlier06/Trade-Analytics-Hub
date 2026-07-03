@@ -1,9 +1,11 @@
 import { Feather } from "@expo/vector-icons";
 import { useGetTrades } from "@workspace/api-client-react";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -30,6 +32,7 @@ function fmt(n: number | null | undefined) {
 export default function JournalScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const [filter, setFilter] = useState<ResultFilter>("all");
 
   const { data: trades, isLoading } = useGetTrades({
@@ -43,11 +46,21 @@ export default function JournalScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: topPadding, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.foreground }]}>Diário</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          {trades?.length ?? 0} operações
-        </Text>
+      <View style={[styles.header, { paddingTop: topPadding, backgroundColor: colors.background, borderBottomColor: colors.border, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}>
+        <View>
+          <Text style={[styles.title, { color: colors.foreground }]}>Diário</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+            {trades?.length ?? 0} operações
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => router.push("/accounts")}
+          style={[styles.accountsBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+          hitSlop={8}
+        >
+          <Feather name="credit-card" size={16} color={colors.foreground} />
+          <Text style={[styles.accountsBtnText, { color: colors.foreground }]}>Contas</Text>
+        </Pressable>
       </View>
 
       {/* Filters */}
@@ -82,7 +95,7 @@ export default function JournalScreen() {
             {filter === "all" ? "Nenhuma operação ainda" : "Nenhum resultado encontrado"}
           </Text>
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            Registe as suas operações no OUTLIER Web.
+            {filter === "all" ? "Toque no botão + para registar a sua primeira operação." : "Tente outro filtro de resultado."}
           </Text>
         </View>
       ) : (
@@ -155,6 +168,13 @@ export default function JournalScreen() {
           }}
         />
       )}
+
+      <Pressable
+        onPress={() => router.push("/new-trade")}
+        style={[styles.fab, { backgroundColor: colors.primary, bottom: bottomPadding - 20 }]}
+      >
+        <Feather name="plus" size={26} color="#fff" />
+      </Pressable>
     </View>
   );
 }
@@ -168,6 +188,30 @@ const styles = StyleSheet.create({
   },
   title: { fontFamily: "Inter_700Bold", fontSize: 24, letterSpacing: -0.5, marginBottom: 2 },
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 13 },
+  accountsBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  accountsBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 12 },
+  fab: {
+    position: "absolute",
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
   filters: {
     flexDirection: "row",
     paddingHorizontal: 16,

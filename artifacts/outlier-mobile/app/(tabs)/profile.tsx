@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
+import { useTheme, type ThemeMode } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 
 interface MenuRowProps {
@@ -45,10 +46,17 @@ function MenuRow({ icon, label, sub, onPress, danger }: MenuRowProps) {
   );
 }
 
+const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: string }[] = [
+  { mode: "light", label: "Claro", icon: "sun" },
+  { mode: "dark", label: "Escuro", icon: "moon" },
+  { mode: "system", label: "Sistema", icon: "smartphone" },
+];
+
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
+  const { mode, setMode } = useTheme();
 
   const topPadding = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPadding = insets.bottom + (Platform.OS === "web" ? 34 : 20) + 84;
@@ -100,8 +108,36 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* Appearance */}
+      <View style={[styles.menuCard, { backgroundColor: colors.card, borderColor: colors.border, marginHorizontal: 16, marginTop: 16, padding: 16 }]}>
+        <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>Aparência</Text>
+        <View style={[styles.themeRow, { backgroundColor: colors.muted, borderColor: colors.border }]}>
+          {THEME_OPTIONS.map(opt => {
+            const active = mode === opt.mode;
+            return (
+              <Pressable
+                key={opt.mode}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  setMode(opt.mode);
+                }}
+                style={[
+                  styles.themeOption,
+                  active && { backgroundColor: colors.primary },
+                ]}
+              >
+                <Feather name={opt.icon as any} size={15} color={active ? "#fff" : colors.mutedForeground} />
+                <Text style={[styles.themeOptionText, { color: active ? "#fff" : colors.mutedForeground }]}>
+                  {opt.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
       {/* Menu */}
-      <View style={[styles.menuCard, { backgroundColor: colors.card, borderColor: colors.border, marginHorizontal: 16, marginTop: 16 }]}>
+      <View style={[styles.menuCard, { backgroundColor: colors.card, borderColor: colors.border, marginHorizontal: 16, marginTop: 12 }]}>
         <MenuRow icon="user" label="Informações Pessoais" sub="Nome, email" />
         <MenuRow icon="lock" label="Alterar Password" sub="Segurança da conta" />
         <MenuRow icon="bell" label="Notificações" sub="Alertas e avisos" />
@@ -149,6 +185,10 @@ const styles = StyleSheet.create({
   memberBadge: { alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, marginTop: 4 },
   memberText: { fontFamily: "Inter_600SemiBold", fontSize: 10, letterSpacing: 0.5, textTransform: "uppercase" },
   menuCard: { borderWidth: 1, borderRadius: 16, overflow: "hidden" },
+  sectionLabel: { fontFamily: "Inter_600SemiBold", fontSize: 11, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 10 },
+  themeRow: { flexDirection: "row", borderRadius: 12, borderWidth: 1, padding: 4, gap: 4 },
+  themeOption: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 10, borderRadius: 9 },
+  themeOptionText: { fontFamily: "Inter_600SemiBold", fontSize: 12 },
   row: {
     flexDirection: "row",
     alignItems: "center",

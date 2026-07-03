@@ -1,10 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import { useGetDashboardSummary, useGetRecentTrades } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
